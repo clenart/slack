@@ -5,14 +5,37 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"fmt"
 )
 
 var logger *log.Logger // A logger that can be set by consumers
 /*
   Added as a var so that we can change this for testing purposes
 */
-var SLACK_API string = "https://slack.com/api/"
+var SLACK_API string
+var SLACK_WEBSOCKET_REFERER string
 var SLACK_WEB_API_FORMAT string = "https://%s.slack.com/api/users.admin.%s?t=%s"
+
+func init() {
+	OVERRIDE_SLACK_HOST := os.Getenv("SLACK_HOST")
+	var SLACK_HOST string
+	if OVERRIDE_SLACK_HOST != nil {
+		SLACK_HOST = OVERRIDE_SLACK_HOST
+	} else {
+		SLACK_HOST = "slack.com"
+	}
+
+	OVERRIDE_SLACK_SCHEME := os.Getenv("SLACK_SCHEME")
+	var SLACK_SCHEME string
+	if OVERRIDE_SLACK_SCHEME != nil {
+		SLACK_SCHEME = OVERRIDE_SLACK_SCHEME
+	} else {
+		SLACK_SCHEME = "https"
+	}
+
+	SLACK_API = fmt.Sprintf("%s://%s/api/", SLACK_SCHEME, SLACK_HOST)
+	SLACK_WEBSOCKET_REFERER = fmt.Sprintf("%s://%s", SLACK_SCHEME, SLACK_HOST)
+}
 
 type SlackResponse struct {
 	Ok    bool   `json:"ok"`
